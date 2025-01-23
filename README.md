@@ -10,6 +10,28 @@
 
 ### Ответ:
 
+Для инициализации и выполнения кода проекта выполняем команды:
+
+```
+terraform init
+```
+```
+terraform plan
+```
+```
+terraform apply
+```
+<img src = "img/01.png" width = 100%>
+<img src = "img/02.png" width = 100%>
+<img src = "img/03.png" width = 100%>
+<img src = "img/04.png" width = 100%>
+<img src = "img/05.png" width = 100%>
+
+После выполнения кода видим, что в Я.Облаке создались группа безопасности с именем **example_dynamic**.
+
+<img src = "img/06.png" width = 100%>
+<img src = "img/07.png" width = 100%>
+
 ---
 ## Задание 2
 

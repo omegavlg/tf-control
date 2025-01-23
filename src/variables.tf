@@ -1,17 +1,19 @@
 ###cloud vars
-variable "token" {
-  type        = string
-  description = "OAuth-token; https://cloud.yandex.ru/docs/iam/concepts/authorization/oauth-token"
-}
+#variable "token" {
+#  type        = string
+#  description = "OAuth-token; https://cloud.yandex.ru/docs/iam/concepts/authorization/oauth-token"
+#}
 
 variable "cloud_id" {
   type        = string
   description = "https://cloud.yandex.ru/docs/resource-manager/operations/cloud/get-id"
+  default = "b1glskia0dbos36k28i8"
 }
 
 variable "folder_id" {
   type        = string
   description = "https://cloud.yandex.ru/docs/resource-manager/operations/folder/get-id"
+  default = "b1g6c8c6gi8ud4pc3deq"
 }
 
 variable "default_zone" {
@@ -22,7 +24,7 @@ variable "default_zone" {
 
 variable "default_cidr" {
   type        = list(string)
-  default     = ["10.0.1.0/24"]
+  default     = ["10.128.1.0/24"]
   description = "https://cloud.yandex.ru/docs/vpc/operations/subnet-create"
 }
 
