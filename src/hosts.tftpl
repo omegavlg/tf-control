@@ -1,0 +1,18 @@
+[webservers]
+%{~ for i in webservers ~}
+${i["name"]}   ansible_host=${i["network_interface"][0]["nat_ip_address"]}   fqdn=${i["fqdn"]}
+%{~ endfor ~}
+
+[databases]
+%{~ for i in databases ~}
+${i["name"]}   ansible_host=${i["network_interface"][0]["nat_ip_address"]}   fqdn=${i["fqdn"]}
+%{~ endfor ~}
+
+[storage]
+%{~ if storage != null ~}
+${storage["name"]}   ansible_host=${storage["network_interface"][0]["nat_ip_address"]}   fqdn=${storage["fqdn"]}
+%{~ endif ~}
+
+[all:vars]
+ansible_user=ubuntu
+ansible_ssh_private_key_file=~/.ssh/id_ed25519
