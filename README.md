@@ -439,3 +439,14 @@ ${storage["name"]}   ansible_host=${storage["network_interface"][0]["nat_ip_addr
 ansible_user=ubuntu
 ansible_ssh_private_key_file=~/.ssh/id_ed25519
 ```
+Выполняем команды:
+
+```
+terraform plan
+```
+```
+terraform apply
+```
+<img src = "img/23.png" width = 100%>
+
+в Директории с проектом создались файлы с инвентарем в разных исполнениях.
