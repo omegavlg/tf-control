@@ -36,7 +36,7 @@ terraform apply
 ## Задание 2
 
 1. Создайте файл count-vm.tf. Опишите в нём создание двух **одинаковых** ВМ  web-1 и web-2 (не web-0 и web-1) с минимальными параметрами, используя мета-аргумент **count loop**. Назначьте ВМ созданную в первом задании группу безопасности.(как это сделать узнайте в документации провайдера yandex/compute_instance )
-2. Создайте файл for_each-vm.tf. Опишите в нём создание двух ВМ для баз данных с именами "main" и "replica" **разных** по cpu/ram/disk_volume , используя мета-аргумент **for_each loop**. Используйте для обеих ВМ одну общую переменную типа:
+2. Создайте файл for_each-vm.tf. Опишите в нём создание двух ВМ для баз данных с именами "main" и "replica" **разных** по cpu/ram/disk_volume, используя мета-аргумент **for_each loop**. Используйте для обеих ВМ одну общую переменную типа:
 ```
 variable "each_vm" {
   type = list(object({  vm_name=string, cpu=number, ram=number, disk_volume=number }))
@@ -49,13 +49,182 @@ variable "each_vm" {
 
 ### Ответ:
 
+Создаем файлы **count-vm.tf** и **for_each-vm.tf** со следущим содержимым:
+
+**count-vm.tf** 
+
+```
+resource "yandex_compute_instance" "web" {
+  count = 2
+
+  name  = "web-${count.index + 1}"
+  zone  = var.default_zone
+
+  resources {
+    cores         = var.vms_resources.db.cores
+    memory        = var.vms_resources.db.memory
+    core_fraction = var.vms_resources.db.core_fraction
+  }
+
+  boot_disk {
+    initialize_params {
+      image_id = data.yandex_compute_image.ubuntu.image_id
+    }
+  }
+
+  network_interface {
+    subnet_id          = yandex_vpc_subnet.develop.id
+    nat                = true
+    security_group_ids = [yandex_vpc_security_group.example.id]
+  }
+
+  metadata = var.metadata
+
+  scheduling_policy {
+    preemptible = true
+  }
+
+  depends_on = [yandex_compute_instance.db]
+}
+```
+
+**for_each-vm.tf**
+
+```
+resource "yandex_compute_instance" "db" {
+  for_each = { for vm in var.each_vm : vm.vm_name => vm }
+
+  name  = each.value.vm_name
+  zone  = var.default_zone
+
+  resources {
+    cores  = each.value.cpu
+    memory = each.value.ram
+    core_fraction = each.value.core_fraction
+  }
+
+    boot_disk {
+    initialize_params {
+      image_id = data.yandex_compute_image.ubuntu.image_id
+      size     = each.value.disk_volume
+    }
+  }
+
+  network_interface {
+    subnet_id = yandex_vpc_subnet.develop.id
+    nat       = true
+  }
+
+  metadata = var.metadata
+
+}
+```
+
+Добавляем переменные в файл **variables.tf**:
+
+```
+variable "vm_image_family" {
+  type        = string
+  default     = "ubuntu-2004-lts"
+  description = "Family of the image to use for the VM."
+}
+
+data "yandex_compute_image" "ubuntu" {
+  family =  var.vm_image_family
+}
+
+variable "metadata" {
+  type        = map(string)
+  description = "Metadata VM"
+}
+
+variable "each_vm" {
+  type = list(object({
+    vm_name     = string
+    cpu         = number
+    ram         = number
+    disk_volume = number
+  }))
+  default = [
+    { vm_name = "main",   cpu = 4, ram = 8,  disk_volume = 50, core_fraction = 5},
+    { vm_name = "replica", cpu = 2, ram = 4,  disk_volume = 25,  core_fraction= 5}
+  ]
+}
+```
+
+В файл **terraform.tfvars** так же добавляем переменную с ключом:
+
+**terraform.tfvars**
+
+```
+vms_resources = {
+    web = { 
+        cores         = 2
+        memory        = 1
+        core_fraction = 5
+    }
+}
+
+metadata = {
+    serial-port-enable = 1
+    ssh-keys           = "ubuntu:ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILGDJdtFM56kwGfTh9tNGYqnI7TtB33G5soUvc6emCpU dnd@dnd-VirtualBox"
+}
+```
+
+Выполняем команды:
+
+```
+terraform plan
+```
+```
+terraform apply
+```
+<img src = "img/08.png" width = 100%>
+<img src = "img/09.png" width = 100%>
+<img src = "img/10.png" width = 100%>
+<img src = "img/11.png" width = 100%>
+<img src = "img/12.png" width = 100%>
+<img src = "img/13.png" width = 100%>
+
+После выполнения кода видим, что в Я.Облаке создались 4 ВМ с именами **web-1**, **web-2**, **replica** и **main**.
+
+<img src = "img/14.png" width = 100%>
+
 ---
 ## Задание 3
 
 1. Создайте 3 одинаковых виртуальных диска размером 1 Гб с помощью ресурса yandex_compute_disk и мета-аргумента count в файле **disk_vm.tf** .
-2. Создайте в том же файле **одиночную**(использовать count или for_each запрещено из-за задания №4) ВМ c именем "storage"  . Используйте блок **dynamic secondary_disk{..}** и мета-аргумент for_each для подключения созданных вами дополнительных дисков.
+2. Создайте в том же файле **одиночную**(использовать count или for_each запрещено из-за задания №4) ВМ c именем "storage". Используйте блок **dynamic secondary_disk{..}** и мета-аргумент for_each для подключения созданных вами дополнительных дисков.
 
 ### Ответ:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ---
 ## Задание 4
