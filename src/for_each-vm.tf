@@ -22,6 +22,10 @@ resource "yandex_compute_instance" "db" {
     nat       = true
   }
 
+  scheduling_policy {
+    preemptible = var.vm_preemptible
+  }
+
   metadata = var.metadata
 
 }

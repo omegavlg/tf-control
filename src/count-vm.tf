@@ -25,7 +25,7 @@ resource "yandex_compute_instance" "web" {
   metadata = var.metadata
 
   scheduling_policy {
-    preemptible = true
+    preemptible = var.vm_preemptible
   }
 
   depends_on = [yandex_compute_instance.db]

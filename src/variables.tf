@@ -34,6 +34,12 @@ variable "vpc_name" {
   description = "VPC network&subnet name"
 }
 
+variable "vm_preemptible" {
+  type        = bool
+  default     = true
+  description = "Whether the VM is preemptible."
+}
+
 variable "vms_resources" {
   type = map(object({
     cores         = number

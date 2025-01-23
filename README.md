@@ -61,9 +61,9 @@ resource "yandex_compute_instance" "web" {
   zone  = var.default_zone
 
   resources {
-    cores         = var.vms_resources.db.cores
-    memory        = var.vms_resources.db.memory
-    core_fraction = var.vms_resources.db.core_fraction
+    cores         = var.vms_resources.web.cores
+    memory        = var.vms_resources.web.memory
+    core_fraction = var.vms_resources.web.core_fraction
   }
 
   boot_disk {
@@ -81,7 +81,7 @@ resource "yandex_compute_instance" "web" {
   metadata = var.metadata
 
   scheduling_policy {
-    preemptible = true
+    preemptible = var.vm_preemptible
   }
 
   depends_on = [yandex_compute_instance.db]
@@ -98,8 +98,8 @@ resource "yandex_compute_instance" "db" {
   zone  = var.default_zone
 
   resources {
-    cores  = each.value.cpu
-    memory = each.value.ram
+    cores         = each.value.cpu
+    memory        = each.value.ram
     core_fraction = each.value.core_fraction
   }
 
@@ -115,6 +115,10 @@ resource "yandex_compute_instance" "db" {
     nat       = true
   }
 
+  scheduling_policy {
+    preemptible = var.vm_preemptible
+  }
+
   metadata = var.metadata
 
 }
@@ -123,6 +127,21 @@ resource "yandex_compute_instance" "db" {
 Добавляем переменные в файл **variables.tf**:
 
 ```
+variable "vm_preemptible" {
+  type        = bool
+  default     = true
+  description = "Whether the VM is preemptible."
+}
+
+variable "vms_resources" {
+  type = map(object({
+    cores         = number
+    memory        = number
+    core_fraction = number
+  }))
+  description = "Resources VM"
+}
+
 variable "vm_image_family" {
   type        = string
   default     = "ubuntu-2004-lts"
@@ -140,10 +159,11 @@ variable "metadata" {
 
 variable "each_vm" {
   type = list(object({
-    vm_name     = string
-    cpu         = number
-    ram         = number
-    disk_volume = number
+    vm_name       = string
+    cpu           = number
+    ram           = number
+    disk_volume   = number
+    core_fraction = number
   }))
   default = [
     { vm_name = "main",   cpu = 4, ram = 8,  disk_volume = 50, core_fraction = 5},
@@ -189,6 +209,11 @@ terraform apply
 После выполнения кода видим, что в Я.Облаке создались 4 ВМ с именами **web-1**, **web-2**, **replica** и **main**.
 
 <img src = "img/14.png" width = 100%>
+
+А также для двух ВМ **web-1** и **web-2** назначена группа безопасности **example_dynamic**:
+
+<img src = "img/15.png" width = 100%>
+<img src = "img/16.png" width = 100%>
 
 ---
 ## Задание 3
