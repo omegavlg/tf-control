@@ -223,33 +223,100 @@ terraform apply
 
 ### Ответ:
 
+Создаем файл **disk_vm** со следущим содержимым:
 
+**disk_vm**
 
+```
+resource "yandex_compute_disk" "vm_disks" {
+  count       = 3
+  name        = "disk-${count.index + 1}"
+  zone        = var.default_zone
+  size        = 1
+  type        = "network-hdd"
+}
 
+resource "yandex_compute_instance" "storage" {
+  name  = "storage"
+  zone  = var.default_zone
 
+  resources {
+    cores         = var.vms_resources.storage.cores
+    memory        = var.vms_resources.storage.memory
+    core_fraction = var.vms_resources.storage.core_fraction
+  }
 
+  boot_disk {
+    initialize_params {
+      image_id = data.yandex_compute_image.ubuntu.image_id
+    }
+  }
 
+  network_interface {
+    subnet_id = yandex_vpc_subnet.develop.id
+    nat       = true
+  }
 
+  metadata = var.metadata   
 
+  scheduling_policy {
+    preemptible = var.vm_preemptible
+  }
 
+  dynamic "secondary_disk" {
+    for_each = yandex_compute_disk.vm_disks[*]
+    content {
+      disk_id = secondary_disk.value.id
+    }
+  }
+}
+```
 
+**terraform.tfvars**
 
+```
+vms_resources = {
+    web = { 
+        cores         = 2
+        memory        = 1
+        core_fraction = 5
+    },
+    storage = {
+        cores         = 2
+        memory        = 2
+        core_fraction = 5
+    }
+}
 
+metadata = {
+    serial-port-enable = 1
+    ssh-keys           = "ubuntu:ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILGDJdtFM56kwGfTh9tNGYqnI7TtB33G5soUvc6emCpU dnd@dnd-VirtualBox"
+}
+```
 
+По традиции выполняем команды:
 
+```
+terraform plan
+```
+```
+terraform apply
+```
 
+<img src = "img/17.png" width = 100%>
+<img src = "img/18.png" width = 100%>
+<img src = "img/19.png" width = 100%>
+<img src = "img/20.png" width = 100%>
 
+Проверяем что после выполнения кода появилось в Я.Облаке:
 
+1. Создалась еще одна ВМ **storage**
 
+<img src = "img/21.png" width = 100%>
 
+2. И к ней подключены 2 диска **disk-1**, **disk-1** и **disk-1**
 
-
-
-
-
-
-
-
+<img src = "img/22.png" width = 100%>
 
 ---
 ## Задание 4
