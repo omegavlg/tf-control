@@ -1,20 +1,20 @@
 all:
   hosts:
-        web-1:
-      ansible_host: 51.250.75.145
-      fqdn: fhmfl2l507fg9bede8nq.auto.internal
-        web-2:
-      ansible_host: 158.160.50.199
-      fqdn: fhm7gmnickodbb8n0rha.auto.internal
-        main:
-      ansible_host: 51.250.73.225
-      fqdn: fhmjkm258c0ouc050fj6.auto.internal
-        replica:
-      ansible_host: 62.84.126.18
-      fqdn: fhmvi8dvk6e6975can9u.auto.internal
-        storage:
-      ansible_host: 51.250.87.220
-      fqdn: fhm5u41mb91p931mifki.auto.internal
+      web-1:
+        ansible_host: 89.169.156.232
+        fqdn: fhm5hvol7fik4rpj2s45.auto.internal
+      web-2:
+        ansible_host: 89.169.154.49
+        fqdn: fhma6e5gpg9r8mg26f4c.auto.internal
+      main:
+        ansible_host: 89.169.138.150
+        fqdn: fhmcqn1o35pre8nr03v0.auto.internal
+      replica:
+        ansible_host: 51.250.77.241
+        fqdn: fhmtvr7g237ijia23ond.auto.internal
+      storage:
+        ansible_host: 89.169.158.37
+        fqdn: fhmpcq4icr97q2nge46i.auto.internal
       vars:
     ansible_user: ubuntu
     ansible_ssh_private_key_file: ~/.ssh/id_ed25519
